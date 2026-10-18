@@ -5,9 +5,10 @@ import (
 	"log"
 	"os"
 
+	"kitten-backend/internal/models"
+
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
-	"kitten-backend/internal/models"
 )
 
 var DB *gorm.DB
@@ -46,5 +47,5 @@ func ConnectDB() {
 	if err != nil {
 		log.Fatalf("Failed to run database migrations: %v", err)
 	}
-	log.Println("Database migrated successfully")
+	log.Println("Database migrated successfully.")
 }
