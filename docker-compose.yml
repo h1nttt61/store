@@ -29,6 +29,15 @@ services:
       PORT: "3000"
     depends_on:
       - postgres
-
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: kitten_frontend
+    restart: always
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
 volumes:
   postgres_data:
