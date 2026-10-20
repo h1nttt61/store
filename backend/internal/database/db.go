@@ -13,7 +13,7 @@ import (
 
 var DB *gorm.DB
 
-func ConnectDB() {
+func ConnectDB() *gorm.DB {
 	host := os.Getenv("DB_HOST")
 	if host == "" {
 		host = "localhost"
@@ -36,16 +36,17 @@ func ConnectDB() {
 	log.Printf("Connecting to database with DSN: host=%s port=%s dbname=%s", host, port, dbname)
 
 	var err error
-	DB, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		log.Fatalf("Failed to connect to database: %v", err)
 	}
 
 	log.Println("Database connection successfully established")
 
-	err = DB.AutoMigrate(&models.Kitten{})
+	err = db.AutoMigrate(&models.Kitten{})
 	if err != nil {
 		log.Fatalf("Failed to run database migrations: %v", err)
 	}
 	log.Println("Database migrated successfully.")
+	return db
 }

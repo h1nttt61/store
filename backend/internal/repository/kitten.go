@@ -1,23 +1,32 @@
 package repository
 
 import (
-	"kitten-backend/internal/database"
 	"kitten-backend/internal/models"
+
+	"gorm.io/gorm"
 )
 
-func GetAllKittens() ([]models.Kitten, error) {
-	var Kittens []models.Kitten
-	result := database.DB.Where("is_available = ?", true).Find(&Kittens)
-	return Kittens, result.Error
+type KittenRepository struct {
+	db *gorm.DB
 }
 
-func GetKittenByID(id uint) (models.Kitten, error) {
-	var Kitten models.Kitten
-	result := database.DB.First(&Kitten, id)
-	return Kitten, result.Error
+func NewKittenRepository(db *gorm.DB) *KittenRepository {
+	return &KittenRepository{db: db}
 }
 
-func CreateKitten(kitten *models.Kitten) error {
-	result := database.DB.Create(&kitten)
-	return result.Error
+func (r *KittenRepository) GetAllKittens() ([]models.Kitten, error) {
+	var kittens []models.Kitten
+	res := r.db.Where("is_available = ?", true).Find(&kittens)
+	return kittens, res.Error
+}
+
+func (r *KittenRepository) GetKittenByID(id uint) (models.Kitten, error) {
+	var kitten models.Kitten
+	res := r.db.First(&kitten, id)
+	return kitten, res.Error
+}
+
+func (r *KittenRepository) CreateKitten(kitten *models.Kitten) error {
+	res := r.db.Create(&kitten)
+	return res.Error
 }
