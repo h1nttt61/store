@@ -7,3 +7,9 @@ const api = axios.create({
 export const getKittens = () => api.get("/kittens").then((r) => r.data);
 export const getKitten = (id) => api.get(`/kittens/${id}`).then((r) => r.data);
 export const createKitten = (data) => api.post("/kittens", data).then((r) => r.data);
+export const uploadImage = (file) => {
+  const formData = new FormData();
+  formData.append("image", file);
+  
+  return api.post("/upload", formData).then((r) => r.data);
+};
