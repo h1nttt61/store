@@ -27,7 +27,6 @@ func GenerateToken(userID uint, username string) (string, error) {
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
-	// Подписываем его нашим секретным ключом
 	return token.SignedString(jwtSecret)
 }
 
