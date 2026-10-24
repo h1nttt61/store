@@ -14,9 +14,9 @@ func NewKittenRepository(db *gorm.DB) *KittenRepository {
 	return &KittenRepository{db: db}
 }
 
-func (r *KittenRepository) GetAllKittens() ([]models.Kitten, error) {
+func (r *KittenRepository) GetAllKittens(limit int, offset int) ([]models.Kitten, error) {
 	var kittens []models.Kitten
-	res := r.db.Where("is_available = ?", true).Find(&kittens)
+	res := r.db.Where("is_available = ?", true).Find(&kittens).Limit(limit).Offset(offset).Find(&kittens)
 	return kittens, res.Error
 }
 

@@ -1,31 +1,48 @@
 package handlers
 
 import (
-	val "github.com/go-playground/validator/v10"
-	"github.com/gofiber/fiber/v2"
 	"kitten-backend/internal/models"
-	"kitten-backend/internal/repository"
 	"kitten-backend/internal/response"
+	"kitten-backend/internal/service"
 	"kitten-backend/internal/validator"
 	"strconv"
 	"strings"
+
+	val "github.com/go-playground/validator/v10"
+	"github.com/gofiber/fiber/v2"
 )
 
 type KittenHandler struct {
-	repo *repository.KittenRepository
+	service *service.KittenService
 }
 
-func NewKittenHandler(repo *repository.KittenRepository) *KittenHandler {
-	return &KittenHandler{repo: repo}
+func NewKittenHandler(service *service.KittenService) *KittenHandler {
+	return &KittenHandler{service: service}
 }
 
 func (h *KittenHandler) GetKittens(c *fiber.Ctx) error {
-	kittens, err := h.repo.GetAllKittens()
+	limit := c.QueryInt("limit", 10)
+	if limit <= 0 || limit > 100 {
+		limit = 10
+	}
+
+	page := c.QueryInt("page", 1)
+	if page <= 0 {
+		page = 1
+	}
+
+	offset := (page - 1) * limit
+
+	kittens, err := h.service.GetAllKittens(limit, offset)
 	if err != nil {
 		return response.SendError(c, fiber.StatusInternalServerError, "Could not get all kittens", nil)
 	}
 
-	return c.JSON(kittens)
+	return c.JSON(fiber.Map{
+		"data":  kittens,
+		"page":  page,
+		"limit": limit,
+	})
 }
 
 func (h *KittenHandler) GetKitten(c *fiber.Ctx) error {
@@ -35,7 +52,7 @@ func (h *KittenHandler) GetKitten(c *fiber.Ctx) error {
 		return response.SendError(c, fiber.StatusBadRequest, "Could not parse id", nil)
 	}
 
-	kitten, err := h.repo.GetKittenByID(uint(id))
+	kitten, err := h.service.GetKittenByID(uint(id))
 	if err != nil {
 		return response.SendError(c, fiber.StatusNotFound, "Kitten not found", nil)
 	}
@@ -67,7 +84,7 @@ func (h *KittenHandler) CreateKitten(c *fiber.Ctx) error {
 		return response.SendError(c, fiber.StatusBadRequest, "Validation failed", errorDetails)
 	}
 
-	if err := h.repo.CreateKitten(&kitten); err != nil {
+	if err := h.service.CreateKitten(&kitten); err != nil {
 		return response.SendError(c, fiber.StatusInternalServerError, "Could not create kitten", nil)
 	}
 

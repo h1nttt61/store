@@ -1,7 +1,9 @@
 package main
 
 import (
+	"kitten-backend/internal/auth"
 	"kitten-backend/internal/repository"
+	"kitten-backend/internal/service"
 	"log"
 	"os"
 
@@ -23,8 +25,13 @@ func main() {
 
 	db := database.ConnectDB()
 	kittenRepo := repository.NewKittenRepository(db)
-	kittenHandler := handlers.NewKittenHandler(kittenRepo)
+	kittenService := service.NewKittenService(kittenRepo)
+	kittenHandler := handlers.NewKittenHandler(kittenService)
 	uploadHander := handlers.NewUploadHandler()
+
+	userRepo := repository.NewUserRepository(db)
+	userService := service.NewUserService(userRepo)
+	userHandler := handlers.NewAuthHandler(userService)
 
 	app := fiber.New()
 	app.Use(logger.New())
@@ -35,8 +42,14 @@ func main() {
 	api := app.Group("/api/v1")
 	api.Get("/kittens", kittenHandler.GetKittens)
 	api.Get("/kittens/:id", kittenHandler.GetKitten)
-	api.Post("/kittens", kittenHandler.CreateKitten)
-	api.Post("/upload", uploadHander.UploadImage)
+	api.Post("/login", userHandler.Login)
+
+	protected := app.Group("/", auth.CheckJWT)
+
+	protected.Post("/kittens", kittenHandler.CreateKitten)
+	protected.Post("/upload", uploadHander.UploadImage)
+
+	api.Get("/")
 
 	port := os.Getenv("PORT")
 	if port == "" {
