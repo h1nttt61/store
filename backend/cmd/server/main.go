@@ -35,7 +35,12 @@ func main() {
 
 	app := fiber.New()
 	app.Use(logger.New())
-	app.Use(cors.New())
+	app.Use(cors.New(cors.Config{
+		AllowOrigins:     "http://localhost:5173",
+		AllowHeaders:     "Origin, Content-Type, Accept, Authorization",
+		AllowMethods:     "GET, POST, PUT, DELETE, OPTIONS",
+		AllowCredentials: true,
+	}))
 
 	app.Static("/uploads", "./uploads")
 
@@ -43,13 +48,13 @@ func main() {
 	api.Get("/kittens", kittenHandler.GetKittens)
 	api.Get("/kittens/:id", kittenHandler.GetKitten)
 	api.Post("/login", userHandler.Login)
+	api.Post("/register", userHandler.Register)
+	api.Post("/refresh", userHandler.Refresh)
 
-	protected := app.Group("/", auth.CheckJWT)
+	protectedAdmin := api.Group("/", auth.CheckJWT, auth.CheckAdmin)
 
-	protected.Post("/kittens", kittenHandler.CreateKitten)
-	protected.Post("/upload", uploadHander.UploadImage)
-
-	api.Get("/")
+	protectedAdmin.Post("/kittens", kittenHandler.CreateKitten)
+	protectedAdmin.Post("/upload", uploadHander.UploadImage)
 
 	port := os.Getenv("PORT")
 	if port == "" {

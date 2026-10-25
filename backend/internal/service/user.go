@@ -2,17 +2,21 @@ package service
 
 import (
 	"errors"
+	"kitten-backend/internal/models"
 
 	"golang.org/x/crypto/bcrypt"
-	"kitten-backend/internal/models"
-	"kitten-backend/internal/repository"
 )
 
-type UserService struct {
-	repo *repository.UserRepository
+type UserRepository interface {
+	FindUserByUserName(username string) (*models.User, error)
+	CreateUser(user *models.User) error
 }
 
-func NewUserService(repo *repository.UserRepository) *UserService {
+type UserService struct {
+	repo UserRepository
+}
+
+func NewUserService(repo UserRepository) *UserService {
 	return &UserService{repo: repo}
 }
 

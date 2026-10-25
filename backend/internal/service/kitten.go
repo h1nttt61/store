@@ -2,14 +2,19 @@ package service
 
 import (
 	"kitten-backend/internal/models"
-	"kitten-backend/internal/repository"
 )
 
-type KittenService struct {
-	repo *repository.KittenRepository
+type KittenRepository interface {
+	GetAllKittens(limit, offset int) ([]models.Kitten, error)
+	GetKittenByID(id uint) (models.Kitten, error)
+	CreateKitten(kitten *models.Kitten) error
 }
 
-func NewKittenService(repo *repository.KittenRepository) *KittenService {
+type KittenService struct {
+	repo KittenRepository
+}
+
+func NewKittenService(repo KittenRepository) *KittenService {
 	return &KittenService{repo: repo}
 }
 
