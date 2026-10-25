@@ -38,7 +38,19 @@ api.interceptors.response.use(
     }
 )
 
-export const getKittens = (page = 1, limit = 10) => api.get(`/kittens?page=${page}&limit=${limit}`).then((r) => r.data);
+export const getKittens = (page = 1, limit = 6, breed = "", sort = "") => {
+  let url = `/kittens?page=${page}&limit=${limit}`;
+  
+  if (breed) {
+    url += `&breed=${encodeURIComponent(breed)}`; 
+  }
+  if (sort) {
+    url += `&sort=${sort}`;
+  }
+  
+  return api.get(url).then((r) => r.data);
+};
+
 export const createKitten = (data) => api.post("/kittens", data).then((r) => r.data);
 export const uploadImage = (file) => {
     const formData = new FormData();

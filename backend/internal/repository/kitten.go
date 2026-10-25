@@ -14,9 +14,22 @@ func NewKittenRepository(db *gorm.DB) *KittenRepository {
 	return &KittenRepository{db: db}
 }
 
-func (r *KittenRepository) GetAllKittens(limit int, offset int) ([]models.Kitten, error) {
+func (r *KittenRepository) GetAllKittens(limit, offset int, breed, sortBy string) ([]models.Kitten, error) {
 	var kittens []models.Kitten
-	res := r.db.Where("is_available = ?", true).Find(&kittens).Limit(limit).Offset(offset).Find(&kittens)
+	query := r.db.Where(&models.Kitten{IsAvailable: true})
+
+	if breed != "" {
+		query = query.Where("breed = ?", breed)
+	}
+	if sortBy == "price_asc" {
+		query = query.Order("price_asc")
+	} else if sortBy == "price_desc" {
+		query = query.Order("price_desc")
+	} else {
+		query = query.Order("created_at desc")
+	}
+
+	res := query.Limit(limit).Offset(offset).Find(&kittens)
 	return kittens, res.Error
 }
 

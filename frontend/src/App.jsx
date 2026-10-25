@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import {
   Box, Container, Heading, SimpleGrid, Tabs, TabList, Tab, TabPanels, TabPanel,
-  Spinner, Center, Text, useToast, Button, HStack, Flex
+  Spinner, Center, Text, useToast, Button, HStack, Flex, Select
 } from "@chakra-ui/react";
 import { getKittens, getAccessToken, logout, refreshToken } from "./api"; 
 import KittenCard from "./components/KittenCard";
@@ -13,8 +13,11 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   
+  const [breed, setBreed] = useState("");
+  const [sort, setSort] = useState("");
+
   const [isAuthenticated, setIsAuthenticated] = useState(!!getAccessToken());
-  const [isCheckingAuth, setIsCheckingAuth] = useState(true); // Новый стейт: проверяем токен
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const [userRole, setUserRole] = useState(localStorage.getItem("role") || "guest");
   
   const [showLogin, setShowLogin] = useState(false);
@@ -42,7 +45,7 @@ export default function App() {
   const load = async () => {
     setLoading(true);
     try {
-      const res = await getKittens(page, 6);
+      const res = await getKittens(page, 6, breed , sort);
       setKittens(res.data);
     } catch (err) {
       console.error(err);
@@ -54,7 +57,7 @@ export default function App() {
 
   useEffect(() => {
     if (isAuthenticated) load();
-  }, [page, isAuthenticated]);
+  }, [page, breed, sort, isAuthenticated]);
 
   const handleLogout = () => {
     logout();
@@ -103,6 +106,21 @@ export default function App() {
         </Box>
 
         <Container maxW="container.xl" pb={16}>
+
+          <Flex mb={6} gap={4} wrap="wrap">
+            <Select placeholder="Все породы" value={breed} onChange={(e) => { setBreed(e.target.value); setPage(1)}} bg="white" maxW="200px">
+              <option value="Британская">Британская</option>
+              <option value="Шотландская">Шотландская</option>
+              <option value="Мейн-кун">Мейн-кун</option>
+              <option value="12">12</option> {/*tests*/}
+            </Select>
+             <Select placeholder="Сортировка" value={sort} onChange={(e) => { setSort(e.target.value); setPage(1); }}bg="white" maxW="200px">
+              <option value="price_asc">Сначала дешевые</option>
+              <option value="price_desc">Сначала дорогие</option>
+            </Select>
+          </Flex>
+
+
           <Tabs colorScheme="purple" variant="enclosed">
             <TabList>
               <Tab>Каталог</Tab>

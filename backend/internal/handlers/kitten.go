@@ -33,7 +33,10 @@ func (h *KittenHandler) GetKittens(c *fiber.Ctx) error {
 
 	offset := (page - 1) * limit
 
-	kittens, err := h.service.GetAllKittens(limit, offset)
+	breed := c.Query("breed")
+	sortBy := c.Query("sortBy")
+
+	kittens, err := h.service.GetAllKittens(limit, offset, breed, sortBy)
 	if err != nil {
 		return response.SendError(c, fiber.StatusInternalServerError, "Could not get all kittens", nil)
 	}

@@ -5,7 +5,7 @@ import (
 )
 
 type KittenRepository interface {
-	GetAllKittens(limit, offset int) ([]models.Kitten, error)
+	GetAllKittens(limit, offset int, breed, sortBy string) ([]models.Kitten, error)
 	GetKittenByID(id uint) (models.Kitten, error)
 	CreateKitten(kitten *models.Kitten) error
 }
@@ -18,8 +18,8 @@ func NewKittenService(repo KittenRepository) *KittenService {
 	return &KittenService{repo: repo}
 }
 
-func (s *KittenService) GetAllKittens(limit, offset int) ([]models.Kitten, error) {
-	return s.repo.GetAllKittens(limit, offset)
+func (s *KittenService) GetAllKittens(limit, offset int, breed, sortBy string) ([]models.Kitten, error) {
+	return s.repo.GetAllKittens(limit, offset, breed, sortBy)
 }
 
 func (s *KittenService) GetKittenByID(id uint) (models.Kitten, error) {
