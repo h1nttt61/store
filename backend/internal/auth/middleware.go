@@ -1,9 +1,10 @@
 package auth
 
 import (
-	"github.com/gofiber/fiber/v2"
 	"kitten-backend/internal/response"
 	"strings"
+
+	"github.com/gofiber/fiber/v2"
 )
 
 func CheckJWT(c *fiber.Ctx) error {
@@ -25,6 +26,7 @@ func CheckJWT(c *fiber.Ctx) error {
 
 	c.Locals("userID", claims.UserID)
 	c.Locals("username", claims.Username)
+	c.Locals("role", claims.Role)
 
 	return c.Next()
 }

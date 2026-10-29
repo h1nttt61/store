@@ -45,7 +45,7 @@ func ConnectDB() *gorm.DB {
 
 	err = db.AutoMigrate(&models.Kitten{}, &models.User{})
 	if err != nil {
-		log.Fatalf("Failed to run database migrations: %v", err)
+		log.Printf("Database migration failed: %v", err)
 	}
 	log.Println("Database migrated successfully.")
 	return db

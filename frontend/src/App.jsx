@@ -3,10 +3,12 @@ import {
   Box, Container, Heading, SimpleGrid, Tabs, TabList, Tab, TabPanels, TabPanel,
   Spinner, Center, Text, useToast, Button, HStack, Flex, Select
 } from "@chakra-ui/react";
+import { Routes, Route } from "react-router-dom";
 import { getKittens, getAccessToken, logout, refreshToken } from "./api"; 
 import KittenCard from "./components/KittenCard";
 import AddKittenForm from "./components/AddKittenForm";
 import Login from "./components/Login"; 
+import KittenPage from "./components/KittenPage";
 
 export default function App() {
   const [kittens, setKittens] = useState([]);
@@ -29,11 +31,8 @@ export default function App() {
       if (!token) {
         try {
           const data = await refreshToken(); 
-          if (data.access_token) {
-            setIsAuthenticated(true);
-          }
+          if (data.access_token) setIsAuthenticated(true);
         } catch (err) {
-          console.log("Нет валидной сессии", err);
           setIsAuthenticated(false);
         }
       }
@@ -45,10 +44,9 @@ export default function App() {
   const load = async () => {
     setLoading(true);
     try {
-      const res = await getKittens(page, 6, breed , sort);
+      const res = await getKittens(page, 6, breed, sort);
       setKittens(res.data);
     } catch (err) {
-      console.error(err);
       toast({ title: "Не удалось загрузить котят", status: "error" });
     } finally {
       setLoading(false);
@@ -56,8 +54,8 @@ export default function App() {
   };
 
   useEffect(() => {
-    if (isAuthenticated) load();
-  }, [page, breed, sort, isAuthenticated]);
+    load();
+  }, [page, breed, sort]);
 
   const handleLogout = () => {
     logout();
@@ -72,9 +70,7 @@ export default function App() {
     setShowLogin(false);
   };
 
-  if (isCheckingAuth) {
-    return <Center minH="100vh"><Spinner size="xl" color="purple.500" /></Center>;
-  }
+  if (isCheckingAuth) return <Center minH="100vh"><Spinner size="xl" color="purple.500" /></Center>;
 
   if (showLogin) {
     return (
@@ -88,77 +84,96 @@ export default function App() {
   const isAdmin = userRole === "admin";
 
   return (
-      <Box minH="100vh" bg="gray.50">
-        <Box bg="purple.600" color="white" py={6} mb={8}>
-          <Container maxW="container.xl">
-            <Flex justify="space-between" align="center">
-              <Box>
-                <Heading size="lg">🐱 Kittens Shop · EU</Heading>
-                <Text opacity={0.85} mt={1}>Твой проект по продаже котят</Text>
-              </Box>
-              {isAuthenticated ? (
-                <Button colorScheme="whiteAlpha" size="sm" onClick={handleLogout}>Выйти</Button>
-              ) : (
-                <Button colorScheme="whiteAlpha" size="sm" onClick={() => setShowLogin(true)}>Войти</Button>
-              )}
-            </Flex>
-          </Container>
-        </Box>
-
-        <Container maxW="container.xl" pb={16}>
-
-          <Flex mb={6} gap={4} wrap="wrap">
-            <Select placeholder="Все породы" value={breed} onChange={(e) => { setBreed(e.target.value); setPage(1)}} bg="white" maxW="200px">
-              <option value="Британская">Британская</option>
-              <option value="Шотландская">Шотландская</option>
-              <option value="Мейн-кун">Мейн-кун</option>
-              <option value="12">12</option> {/*tests*/}
-            </Select>
-             <Select placeholder="Сортировка" value={sort} onChange={(e) => { setSort(e.target.value); setPage(1); }}bg="white" maxW="200px">
-              <option value="price_asc">Сначала дешевые</option>
-              <option value="price_desc">Сначала дорогие</option>
-            </Select>
-          </Flex>
-
-
-          <Tabs colorScheme="purple" variant="enclosed">
-            <TabList>
-              <Tab>Каталог</Tab>
-              {isAdmin && <Tab>Добавить</Tab>}
-            </TabList>
-
-            <TabPanels>
-              <TabPanel px={0}>
-                {loading ? (
-                    <Center py={20}><Spinner size="xl" color="purple.500" /></Center>
-                ) : kittens.length === 0 ? (
-                    <Text textAlign="center" py={20} color="gray.500">Пока нет доступных котят</Text>
+    <Routes>
+      <Route path="/" element={
+        <Box minH="100vh" bgGradient="linear(to-b, purple.50, white)">
+          <Box bg="purple.600" color="white" py={4} mb={8} shadow="md">
+            <Container maxW="container.xl">
+              <Flex justify="space-between" align="center">
+                <HStack spacing={3}>
+                  <Text fontSize="3xl">🐱</Text>
+                  <Box>
+                    <Heading size="md" letterSpacing="wide">Kittens Shop · EU</Heading>
+                  </Box>
+                </HStack>
+                {isAuthenticated ? (
+                  <Button colorScheme="whiteAlpha" size="sm" onClick={handleLogout}>Выйти</Button>
                 ) : (
-                    <>
-                      <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={6}>
-                        {kittens.map((k) => (
-                            <KittenCard key={k.ID} kitten={k} onDetails={(kitten) => toast({ title: kitten.name, description: kitten.description || "Без описания", status: "info" })} />
-                        ))}
-                      </SimpleGrid>
-                      <Flex justify="center" mt={8}>
-                        <HStack>
-                          <Button onClick={() => setPage(page - 1)} isDisabled={page === 1}>Назад</Button>
-                          <Text fontWeight="bold" alignSelf="center" mx={4}>Страница {page}</Text>
-                          <Button onClick={() => setPage(page + 1)} isDisabled={kittens.length < 6}>Вперед</Button>
-                        </HStack>
-                      </Flex>
-                    </>
+                  <Button colorScheme="whiteAlpha" size="sm" onClick={() => setShowLogin(true)}>Войти</Button>
                 )}
-              </TabPanel>
+              </Flex>
+            </Container>
+          </Box>
 
-              {isAdmin && (
-                <TabPanel px={0}>
-                  <AddKittenForm onCreated={() => { setPage(1); load(); }} />
+          <Container maxW="container.xl" pb={16}>
+            <Box 
+              mb={8} p={8} borderRadius="2xl" 
+              bgGradient="linear(to-r, purple.500, pink.400)" 
+              color="white" shadow="xl"
+            >
+              <Heading size="xl" mb={2}>Найди своего идеального друга</Heading>
+              <Text fontSize="lg" opacity={0.9}>Более 1000 счастливых котиков уже нашли свой дом</Text>
+            </Box>
+
+            <Flex mb={6} gap={4} wrap="wrap" bg="white" p={4} borderRadius="lg" shadow="sm">
+              <Select placeholder="Все породы" value={breed} onChange={(e) => { setBreed(e.target.value); setPage(1)}} maxW="200px" bg="gray.50">
+                <option value="Британская">Британская</option>
+                <option value="Шотландская">Шотландская</option>
+                <option value="Мейн-кун">Мейн-кун</option>
+              </Select>
+              <Select placeholder="Сортировка" value={sort} onChange={(e) => { setSort(e.target.value); setPage(1); }} maxW="200px" bg="gray.50">
+                <option value="price_asc">Сначала дешевые</option>
+                <option value="price_desc">Сначала дорогие</option>
+              </Select>
+            </Flex>
+
+            <Tabs colorScheme="purple" variant="soft-rounded">
+              <TabList mb={4}>
+                <Tab>Каталог</Tab>
+                {isAdmin && <Tab>Добавить</Tab>}
+              </TabList>
+              <TabPanels>
+              <TabPanel px={0}>
+                  {loading ? (
+                      <Center py={20}><Spinner size="xl" color="purple.500" /></Center>
+                  ) : kittens.length === 0 ? (
+                      <Text textAlign="center" py={20} color="gray.500">Пока нет доступных котят</Text>
+                  ) : (
+                      <>
+                        <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={6}>
+                          {kittens.map((k) => (
+                              <KittenCard key={k.ID} kitten={k} />
+                          ))}
+                        </SimpleGrid>
+                        <Flex justify="center" mt={8}>
+                          <HStack>
+                            <Button onClick={() => setPage(page - 1)} isDisabled={page === 1}>Назад</Button>
+                            <Text fontWeight="bold" alignSelf="center" mx={4}>Страница {page}</Text>
+                            <Button onClick={() => setPage(page + 1)} isDisabled={kittens.length < 6}>Вперед</Button>
+                        </HStack>
+                        </Flex>
+                      </>
+                  )}
                 </TabPanel>
-              )}
-            </TabPanels>
-          </Tabs>
-        </Container>
-      </Box>
+                {isAdmin && (
+                  <TabPanel px={0}>
+                    <AddKittenForm onCreated={() => { setPage(1); load(); }} />
+                  </TabPanel>
+                )}
+              </TabPanels>
+            </Tabs>
+          </Container>
+
+          <Box bg="gray.800" color="gray.400" py={8} mt={16}>
+            <Container maxW="container.xl">
+              <Flex justify="space-between" align="center">
+                <Text>© 2026 Kittens Shop. Все права защищены.</Text>
+              </Flex>
+            </Container>
+          </Box>
+        </Box>
+      } />
+      <Route path="/kitten/:id" element={<KittenPage />} />
+    </Routes>
   );
 }

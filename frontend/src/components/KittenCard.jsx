@@ -1,9 +1,24 @@
 import { Box, Image, Badge, Heading, Text, HStack, Button } from "@chakra-ui/react";
+import { Link } from "react-router-dom";
 
-export default function KittenCard({ kitten, onDetails }) {
+export default function KittenCard({ kitten }) {
   return (
-    <Box borderWidth="1px" borderRadius="lg" overflow="hidden" bg="white" shadow="md"_hover={{ shadow: "xl", transform: "translateY(-2px)" }} transition="all 0.2s">
-      <Image src={kitten.image_url || "https://placekitten.com/400/300"} alt={kitten.name} h="200px"w="100%" objectFit="cover"/>
+    <Box
+      borderWidth="1px"
+      borderRadius="lg"
+      overflow="hidden"
+      bg="white"
+      shadow="md"
+      _hover={{ shadow: "xl", transform: "translateY(-2px)" }}
+      transition="all 0.2s"
+    >
+      <Image
+        src={kitten.image_url || "https://placekitten.com/400/300"}
+        alt={kitten.name}
+        h="200px"
+        w="100%"
+        objectFit="cover"
+      />
 
       <Box p={4}>
         <HStack justify="space-between" mb={2}>
@@ -23,12 +38,7 @@ export default function KittenCard({ kitten, onDetails }) {
           €{kitten.price}
         </Text>
 
-        <Button
-          colorScheme="purple"
-          size="sm"
-          width="100%"
-          onClick={() => onDetails(kitten)}
-        >
+        <Button as={Link} to={`/kitten/${kitten.ID}`} colorScheme="purple" size="sm" width="100%">
           Подробнее
         </Button>
       </Box>

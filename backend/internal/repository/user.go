@@ -1,8 +1,9 @@
 package repository
 
 import (
-	"gorm.io/gorm"
 	"kitten-backend/internal/models"
+
+	"gorm.io/gorm"
 )
 
 type UserRepository struct {
@@ -25,4 +26,23 @@ func (r *UserRepository) FindUserByUserName(username string) (*models.User, erro
 
 func (r *UserRepository) CreateUser(user *models.User) error {
 	return r.db.Create(user).Error
+}
+
+func (r *UserRepository) GetUserByID(id uint) (*models.User, error) {
+	var user models.User
+	err := r.db.Where(&user, id).First(&user).Error
+	return &user, err
+}
+
+func (r *UserRepository) UpdateUser(user *models.User) error {
+	return r.db.Save(user).Error
+}
+
+func (r *UserRepository) FindUserByEmail(email string) (*models.User, error) {
+	var user models.User
+	err := r.db.Where("email = ?", email).First(&user).Error
+	if err != nil {
+		return nil, err
+	}
+	return &user, nil
 }

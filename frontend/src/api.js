@@ -59,11 +59,21 @@ export const uploadImage = (file) => {
 };
 export const login = (username, password) => api.post("/login", { username, password }).then((r) => r.data);
 export const getAccessToken = () => accessToken;
-export const logout = () => {
-    accessToken = null;
-    localStorage.removeItem("role");
+export const logout = async () => {
+   try{
+       await api.post("/logout");
+   }catch (e){
+       console.error("Logout error", e);
+   }
+
+   accessToken = null;
+   localStorage.removeItem("role");
 };
 export const refreshToken = () => api.post("/refresh", {}).then((r) => {
     setAccessToken(r.data.access_token); 
     return r.data;
 });
+export const getKitten = (id) => api.get(`/kittens/${id}`).then((r) => r.data);
+
+export const registerUser = (username, email, password) => api.post("/register", {username, email, password}).then((r) => r.data);
+export const loginWithCode = (username, code) => api.post("/login-with-code", {username, code}).then((r) => r.data);
