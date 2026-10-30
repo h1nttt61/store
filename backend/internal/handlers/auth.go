@@ -186,3 +186,12 @@ func (h *AuthHandler) Logout(c *fiber.Ctx) error {
 
 	return c.JSON(fiber.Map{"message": "user logged out"})
 }
+
+func (h *AuthHandler) GetUsers(c *fiber.Ctx) error {
+	users, err := h.userService.GetAllUsers()
+	if err != nil {
+		return response.SendError(c, fiber.StatusInternalServerError, "internal error", nil)
+	}
+
+	return c.JSON(users)
+}

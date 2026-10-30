@@ -66,6 +66,7 @@ func main() {
 	protectedAdmin.Post("/kittens", kittenHandler.CreateKitten)
 	protectedAdmin.Post("/upload", uploadHander.UploadImage)
 	protectedAdmin.Post("/users/:id/make-admin", userHandler.MakeAdmin)
+	protectedAdmin.Get("/users", userHandler.GetUsers)
 
 	port := os.Getenv("PORT")
 	if port == "" {

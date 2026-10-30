@@ -9,6 +9,7 @@ import KittenCard from "./components/KittenCard";
 import AddKittenForm from "./components/AddKittenForm";
 import Login from "./components/Login"; 
 import KittenPage from "./components/KittenPage";
+import AdminPanel from "./components/AdminPanel";
 
 export default function App() {
   const [kittens, setKittens] = useState([]);
@@ -105,14 +106,13 @@ export default function App() {
             </Container>
           </Box>
 
-          <Container maxW="container.xl" pb={16}>
+          <Container maxW="container.xl" pb={16} flex={1}>
             <Box 
               mb={8} p={8} borderRadius="2xl" 
               bgGradient="linear(to-r, purple.500, pink.400)" 
               color="white" shadow="xl"
             >
               <Heading size="xl" mb={2}>Найди своего идеального друга</Heading>
-              <Text fontSize="lg" opacity={0.9}>Более 1000 счастливых котиков уже нашли свой дом</Text>
             </Box>
 
             <Flex mb={6} gap={4} wrap="wrap" bg="white" p={4} borderRadius="lg" shadow="sm">
@@ -131,6 +131,7 @@ export default function App() {
               <TabList mb={4}>
                 <Tab>Каталог</Tab>
                 {isAdmin && <Tab>Добавить</Tab>}
+                {isAdmin && <Tab>Админка</Tab>}
               </TabList>
               <TabPanels>
               <TabPanel px={0}>
@@ -160,11 +161,23 @@ export default function App() {
                     <AddKittenForm onCreated={() => { setPage(1); load(); }} />
                   </TabPanel>
                 )}
+                {isAdmin && (
+                    <TabPanel px={0}>
+                      <AdminPanel />
+                    </TabPanel>
+                )}
               </TabPanels>
             </Tabs>
           </Container>
 
-          <Box bg="gray.800" color="gray.400" py={8} mt={16}>
+          <Box bgGradient="linear(to-r, purple.600, purple.400)"
+               color="white"
+               py={8}
+               position="fixed"
+               bottom={0}
+               left={0}
+               w="full"
+               zIndex={10}>
             <Container maxW="container.xl">
               <Flex justify="space-between" align="center">
                 <Text>© 2026 Kittens Shop. Все права защищены.</Text>

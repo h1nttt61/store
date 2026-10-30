@@ -77,3 +77,5 @@ export const getKitten = (id) => api.get(`/kittens/${id}`).then((r) => r.data);
 
 export const registerUser = (username, email, password) => api.post("/register", {username, email, password}).then((r) => r.data);
 export const loginWithCode = (username, code) => api.post("/login-with-code", {username, code}).then((r) => r.data);
+export const getUsers = () => api.get("/users").then((r) => r.data);
+export const makeAdmin = (id) => api.post(`/users/${id}/make-admin`).then((r) => r.data);

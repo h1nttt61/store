@@ -13,6 +13,7 @@ type UserRepository interface {
 	GetUserByID(userID uint) (*models.User, error)
 	UpdateUser(user *models.User) error
 	FindUserByEmail(email string) (*models.User, error)
+	GetAllUsers() ([]models.User, error)
 }
 
 type UserService struct {
@@ -76,4 +77,8 @@ func (s *UserService) GetUserByUsername(username string) (*models.User, error) {
 
 func (s *UserService) GetUserByEmail(email string) (*models.User, error) {
 	return s.repo.FindUserByEmail(email)
+}
+
+func (s *UserService) GetAllUsers() ([]models.User, error) {
+	return s.repo.GetAllUsers()
 }
